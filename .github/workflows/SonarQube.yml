@@ -11,32 +11,40 @@ on:
       - main
       - release
       - develop
+
 env:
   SLN_NAME: TestSonarCloud
-
+  DOTNET_VERSION: '6.0'
+  GITHUB_TOKEN: ${{secrets.GITHUBTOKEN}}
+  
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   sonarQubeTrigger:
     name: SonarQube Trigger
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name : restore        
-        run :  dotnet restore
-      - name : build
-        run :  dotnet build
-      - name: Sonarscanner for dotnet
-        uses: Secbyte/dotnet-sonarscanner@v5.8
+      - uses: actions/checkout@v2
         with:
-          buildCommand: dotnet build .
-          #testCommand: dotnet test ${{ env.SLN_NAME }}.test/${{ env.SLN_NAME }}.test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-          projectKey: gamatron7devops_TestSonarCloud
-          projectName: ${{ github.event.repository.name }}
-          sonarOrganisation: gamatron7devops
-          beginArguments: >
-              /d:sonar.cs.opencover.reportsPaths='${{ env.SLN_NAME }}.test/coverage.opencover.xml' 
-              /d:sonar.coverage.exclusions="**Test*.cs,**/Models/*"
-              /d:sonar.exclusions="**/Scripts/*"
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+            node-version: '14'   
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - uses: microsoft/setup-msbuild@v1
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+      - name: Restore NuGet packages
+        run: nuget restore 'TestSonarCloud.sln'
+      - name: Begin Sonar scan
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin /o:gamatron7devops /k:gamatron7devops_TestSonarCloud /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url=https://sonarcloud.io
+          dotnet restore
+          dotnet build
+      - name: End Sonar scan
+        run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
