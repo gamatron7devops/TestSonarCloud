@@ -40,12 +40,21 @@ jobs:
           java-version: '11'
       - name: Restore NuGet packages
         run: nuget restore 'TestSonarCloud.sln'
+      - name: Install dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner
       - name: Begin Sonar scan
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /o:gamatron7devops /k:gamatron7devops_TestSonarCloud /d:sonar.cs.opencover.reportsPaths=TestProject/coverage.opencover.xml /d:sonar.coverage.exclusions="**Test*.cs,**/Models/*,**StartUp.cs,**.ts,**.js" /d:sonar.exclusions="**/Scripts/*" /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url=https://sonarcloud.io
-          dotnet restore
-          dotnet build
+        run: dotnet sonarscanner begin 
+            /o:gamatron7devops 
+            /k:gamatron7devops_TestSonarCloud 
+            /d:sonar.cs.opencover.reportsPaths=TestProject/coverage.opencover.xml 
+            /d:sonar.coverage.exclusions="**Test*.cs,**/Models/*,**Program.cs,**Startup.cs,**cshtml.cs,**.ts,**.js" 
+            /d:sonar.exclusions="**/Scripts/*" 
+            /d:sonar.login=${{ secrets.SONAR_TOKEN }}
+            /d:sonar.host.url=https://sonarcloud.io
+      - name: restore
+        run: dotnet restore
+      - name: build
+        run: dotnet build
       - name: Test
         run : dotnet test TestProject/TestProject.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: End Sonar scan
