@@ -26,7 +26,7 @@ jobs:
       - name : build
         run :  dotnet build
       - name: Sonarscanner for dotnet
-        uses: Secbyte/dotnet-sonarscanner@v2.3
+        uses: Secbyte/dotnet-sonarscanner@v5.8
         with:
           buildCommand: dotnet build .
           #testCommand: dotnet test ${{ env.SLN_NAME }}.test/${{ env.SLN_NAME }}.test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
