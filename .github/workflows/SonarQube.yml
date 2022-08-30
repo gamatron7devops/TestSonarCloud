@@ -48,7 +48,7 @@ jobs:
             /k:gamatron7devops_TestSonarCloud 
             /d:sonar.cs.opencover.reportsPaths=TestProject/coverage.opencover.xml 
             /d:sonar.coverage.exclusions="**Test*.cs,**/Models/*,**Program.cs,**Startup.cs,**cshtml.cs,**.ts,**.js" 
-            /d:sonar.exclusions="**/Scripts/*" 
+            /d:sonar.exclusions="**/Scripts/*,**.ts,**.js"" 
             /d:sonar.login=${{ secrets.SONAR_TOKEN }}
             /d:sonar.host.url=https://sonarcloud.io
       - name: restore
