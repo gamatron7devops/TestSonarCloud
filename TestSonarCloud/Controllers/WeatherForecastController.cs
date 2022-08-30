@@ -29,7 +29,7 @@ namespace TestSonarCloud.Controllers
             return Enumerable.Range(1, 7).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
-                TemperatureC = 20,
+                TemperatureC = 30,
                 Summary = Summaries[index]
             })
             .ToArray();
