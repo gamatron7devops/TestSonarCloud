@@ -43,8 +43,17 @@ jobs:
       - name: Begin Sonar scan
         run: |
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /o:gamatron7devops /k:gamatron7devops_TestSonarCloud /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url=https://sonarcloud.io
+          dotnet sonarscanner begin 
+          /o:gamatron7devops 
+          /k:gamatron7devops_TestSonarCloud
+          /d:sonar.cs.opencover.reportsPaths=TestProject/coverage.opencover.xml
+          /d:sonar.coverage.exclusions="**Test*.cs,**/Models/*,**StartUp.cs"                        
+          /d:sonar.exclusions="**/Scripts/*"
+          /d:sonar.login=${{ secrets.SONAR_TOKEN }} 
+          /d:sonar.host.url=https://sonarcloud.io
           dotnet restore
           dotnet build
+      - name: Test
+        run : dotnet test TestProject/TestProject.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: End Sonar scan
         run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
